@@ -27,12 +27,12 @@ The server requires a YAML settings string (or path to a settings file) that def
 ### Dependencies
 - `@rainlanguage/orderbook` — Raindex SDK (Rust/WASM bindings)
 - `@modelcontextprotocol/sdk` — MCP server framework
-- `viem` — for wallet/transaction submission if write operations are supported
-
 ### Auth & Wallet
-- **Read-only tools** (queries, quotes) work without a wallet
-- **Write tools** (deposit, withdraw, remove order) generate calldata only — the MCP client is responsible for signing and submitting transactions
-- Calldata is returned as hex strings; the agent/user submits via their own wallet
+- **No wallet management** — the MCP server never holds keys or signs transactions
+- **Read tools** (queries, quotes) work with no wallet config
+- **Write tools** (deposit, withdraw, remove order, deploy) return calldata + target address + chainId only
+- The MCP client/agent is fully responsible for signing and submitting transactions via its own wallet
+- Calldata is returned as hex strings ready to be signed externally
 
 ---
 
@@ -102,7 +102,7 @@ Get live quotes for an order's trading pairs — what it would fill at right now
 
 ---
 
-#### `raindex_remove_order`
+#### `raindex_remove_order_calldata`
 Generate calldata to remove an order from the orderbook.
 
 | Parameter | Type | Required | Description |
@@ -111,7 +111,7 @@ Generate calldata to remove an order from the orderbook.
 | `orderbook_address` | `string` | Yes | Orderbook contract address |
 | `order_hash` | `string` | Yes | Order hash |
 
-**Returns:** `{ calldata: string, to: string, chainId: number }` — ready to sign and submit
+**Returns:** `{ calldata: string, to: string, chainId: number }` — ready to sign and submit externally
 
 **SDK:** `order.getRemoveCalldata()`
 
@@ -321,10 +321,10 @@ List all known accounts/owners from subgraph data.
 
 | Group | Tools | Read/Write |
 |---|---|---|
-| **Orders** | `list_orders`, `get_order`, `get_order_trades`, `get_order_quotes`, `remove_order` | Read + Write |
-| **Vaults** | `list_vaults`, `get_vault`, `get_vault_history`, `deposit_calldata`, `withdraw_calldata`, `withdraw_all_calldata` | Read + Write |
+| **Orders** | `list_orders`, `get_order`, `get_order_trades`, `get_order_quotes`, `remove_order_calldata` | Read + Calldata |
+| **Vaults** | `list_vaults`, `get_vault`, `get_vault_history`, `deposit_calldata`, `withdraw_calldata`, `withdraw_all_calldata` | Read + Calldata |
 | **Strategies** | `list_strategies`, `get_strategy_details`, `compose_rainlang` | Read |
-| **Deployment** | `deploy_strategy` | Write |
+| **Deployment** | `deploy_strategy` | Calldata |
 | **Transactions** | `get_transaction` | Read |
 | **Info** | `list_tokens`, `list_accounts` | Read |
 
@@ -336,7 +336,7 @@ List all known accounts/owners from subgraph data.
 
 3. **Float precision**: Use the SDK's `Float.parse()` for all human-readable amount inputs to avoid precision issues.
 
-4. **Calldata-only writes**: Write operations return calldata, not submitted transactions. This keeps the MCP server stateless and wallet-agnostic. The consuming agent is responsible for transaction submission.
+4. **Calldata-only writes**: All write operations return `{ calldata, to, chainId }` — never submitted transactions. The MCP server has zero wallet/key awareness. The consuming agent signs and submits via its own wallet infrastructure.
 
 5. **Registry is optional**: Strategy/registry tools only work when `RAINDEX_REGISTRY_URL` is configured. They should return a clear message if the registry is not set up.
 

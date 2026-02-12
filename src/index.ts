@@ -4,7 +4,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { createContext } from "./client.js";
-import { listOrders, getOrder, getOrderTrades, getOrderQuotes, removeOrderCalldata } from "./tools/orders.js";
+import { listOrders, getOrder, getOrderTrades, getOrderQuotes, quoteAllOrders, removeOrderCalldata } from "./tools/orders.js";
 import { listVaults, getVault, getVaultHistory, depositCalldata, withdrawCalldata, withdrawAllCalldata } from "./tools/vaults.js";
 import { listStrategies, getStrategyDetails, composeRainlang } from "./tools/strategies.js";
 import { deployStrategy } from "./tools/deployment.js";
@@ -64,6 +64,17 @@ async function main() {
       order_hash: z.string().describe("Order hash"),
     },
     async (params) => getOrderQuotes(ctx.client, params)
+  );
+
+  server.tool(
+    "raindex_quote_all_orders",
+    "Quote all orders for an owner — returns live prices for every active order without needing individual order hashes",
+    {
+      chain_ids: z.array(z.number()).optional().describe("Filter by chain IDs (defaults to all configured)"),
+      owner: z.string().describe("Owner address"),
+      active_only: z.boolean().optional().describe("Only quote active orders (default false)"),
+    },
+    async (params) => quoteAllOrders(ctx.client, params)
   );
 
   server.tool(

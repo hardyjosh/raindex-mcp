@@ -1,4 +1,4 @@
-import type { RaindexClient } from "@rainlanguage/orderbook";
+import type { RaindexClient, GetVaultsFilters, Address, Hex } from "@rainlanguage/orderbook";
 import { Float } from "@rainlanguage/orderbook";
 import { unwrap, toolResult, toolError } from "../lib/errors.js";
 
@@ -12,14 +12,13 @@ export async function listVaults(
   }
 ) {
   try {
-    const filters: Record<string, unknown> = {};
-    if (params.owner) filters.owners = [params.owner];
-    if (params.hide_zero_balance !== false) {
-      filters.hideZeroBalance = true;
-    }
+    const filters: GetVaultsFilters = {
+      owners: params.owner ? [params.owner as Address] : [],
+      hideZeroBalance: params.hide_zero_balance !== false,
+    };
 
     const result = await client.getVaults(
-      params.chain_ids ?? [],
+      params.chain_ids ?? null,
       filters,
       params.page ?? 1
     );
@@ -41,8 +40,8 @@ export async function getVault(
   try {
     const result = await client.getVault(
       params.chain_id,
-      params.orderbook_address,
-      params.vault_id
+      params.orderbook_address as Address,
+      params.vault_id as Hex
     );
     const vault = unwrap(result, "Failed to get vault");
     return toolResult(vault);
@@ -62,8 +61,8 @@ export async function getVaultHistory(
   try {
     const vaultResult = await client.getVault(
       params.chain_id,
-      params.orderbook_address,
-      params.vault_id
+      params.orderbook_address as Address,
+      params.vault_id as Hex
     );
     const vault = unwrap(vaultResult, "Failed to get vault");
     const historyResult = await vault.getBalanceChanges();
@@ -86,8 +85,8 @@ export async function depositCalldata(
   try {
     const vaultResult = await client.getVault(
       params.chain_id,
-      params.orderbook_address,
-      params.vault_id
+      params.orderbook_address as Address,
+      params.vault_id as Hex
     );
     const vault = unwrap(vaultResult, "Failed to get vault");
 
@@ -111,7 +110,7 @@ export async function depositCalldata(
       approval: approvalCalldata
         ? { calldata: approvalCalldata, currentAllowance: allowance }
         : null,
-    });
+    } as Record<string, unknown>);
   } catch (e) {
     return toolError(String(e));
   }
@@ -129,8 +128,8 @@ export async function withdrawCalldata(
   try {
     const vaultResult = await client.getVault(
       params.chain_id,
-      params.orderbook_address,
-      params.vault_id
+      params.orderbook_address as Address,
+      params.vault_id as Hex
     );
     const vault = unwrap(vaultResult, "Failed to get vault");
 
@@ -158,7 +157,10 @@ export async function withdrawAllCalldata(
   }
 ) {
   try {
-    const filters = { owners: [params.owner], hideZeroBalance: true };
+    const filters: GetVaultsFilters = {
+      owners: [params.owner as Address],
+      hideZeroBalance: true,
+    };
     const result = await client.getVaults([params.chain_id], filters, 1);
     const vaultsList = unwrap(result, "Failed to list vaults");
 

@@ -39,8 +39,13 @@ describe("raindex_list_tokens", () => {
 
 describe("raindex_list_accounts", () => {
   it("returns accounts from client", async () => {
+    // getAllAccounts is sync and returns Map<string, AccountCfg>
+    const accountsMap = new Map([
+      ["account1", { address: "0xAccount1" }],
+      ["account2", { address: "0xAccount2" }],
+    ]);
     const client = {
-      getAllAccounts: vi.fn().mockResolvedValue(ok(["0xAccount1", "0xAccount2"])),
+      getAllAccounts: vi.fn().mockReturnValue(ok(accountsMap)),
     } as never;
 
     const result = await listAccounts(client);
@@ -49,7 +54,7 @@ describe("raindex_list_accounts", () => {
 
   it("returns error on failure", async () => {
     const client = {
-      getAllAccounts: vi.fn().mockResolvedValue(err("subgraph error")),
+      getAllAccounts: vi.fn().mockReturnValue(err("config error")),
     } as never;
 
     const result = await listAccounts(client);

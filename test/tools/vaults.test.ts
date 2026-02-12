@@ -47,15 +47,15 @@ describe("raindex_list_vaults", () => {
     const client = makeClient();
     const result = await listVaults(client, {});
     expect(result.content[0].text).toContain("0x01");
-    expect(client.getVaults).toHaveBeenCalledWith([], { hideZeroBalance: true }, 1);
+    expect(client.getVaults).toHaveBeenCalledWith(null, { owners: [], hideZeroBalance: true }, 1);
   });
 
   it("passes owner filter", async () => {
     const client = makeClient();
     await listVaults(client, { owner: "0xOwner", hide_zero_balance: false });
     expect(client.getVaults).toHaveBeenCalledWith(
-      [],
-      { owners: ["0xOwner"] },
+      null,
+      { owners: ["0xOwner"], hideZeroBalance: false },
       1
     );
   });

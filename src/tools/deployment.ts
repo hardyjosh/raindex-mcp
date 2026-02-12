@@ -23,7 +23,8 @@ export async function deployStrategy(
     // Set select tokens
     if (params.select_tokens) {
       for (const [key, address] of Object.entries(params.select_tokens)) {
-        await gui.setSelectToken(key, address);
+        const tokenResult = await gui.setSelectToken(key, address);
+        unwrap(tokenResult, `Failed to set select token ${key}`);
       }
     }
 
@@ -36,7 +37,8 @@ export async function deployStrategy(
     // Set deposits
     if (params.deposits) {
       for (const [token, amount] of Object.entries(params.deposits)) {
-        await gui.setDeposit(token, amount);
+        const depositResult = await gui.setDeposit(token, amount);
+        unwrap(depositResult, `Failed to set deposit for ${token}`);
       }
     }
 

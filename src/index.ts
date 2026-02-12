@@ -196,6 +196,7 @@ async function main() {
     "raindex_get_transaction",
     "Inspect a transaction on the orderbook",
     {
+      chain_id: z.number().describe("Chain ID"),
       orderbook_address: z.string().describe("Orderbook contract address"),
       tx_hash: z.string().describe("Transaction hash"),
     },

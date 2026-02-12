@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
-    "@rainlanguage/orderbook": "^0.0.1"
+    "@rainlanguage/orderbook": "0.0.1-alpha.207"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

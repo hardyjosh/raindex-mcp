@@ -16,9 +16,14 @@ export async function listTokens(orderbookYaml: OrderbookYaml | null) {
 
 export async function listAccounts(client: RaindexClient) {
   try {
-    const result = await client.getAllAccounts();
+    const result = client.getAllAccounts();
     const accounts = unwrap(result, "Failed to list accounts");
-    return toolResult(accounts);
+    // Convert Map to serializable object
+    const accountsObj: Record<string, unknown> = {};
+    for (const [name, cfg] of accounts) {
+      accountsObj[name] = cfg;
+    }
+    return toolResult(accountsObj);
   } catch (e) {
     return toolError(String(e));
   }

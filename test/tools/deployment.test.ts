@@ -13,9 +13,9 @@ function ok<T>(value: T) {
 
 function makeRegistry() {
   const gui = {
-    setSelectToken: vi.fn().mockResolvedValue(undefined),
+    setSelectToken: vi.fn().mockResolvedValue({ value: undefined, error: undefined }),
     setFieldValue: vi.fn().mockReturnValue({ value: undefined, error: undefined }),
-    setDeposit: vi.fn().mockResolvedValue(undefined),
+    setDeposit: vi.fn().mockResolvedValue({ value: undefined, error: undefined }),
     getDeploymentTransactionArgs: vi.fn().mockResolvedValue(ok({
       approvals: [{ token: "0xUSDC", calldata: "0xapprove1" }],
       deploymentCalldata: "0xdeploy",
@@ -60,12 +60,12 @@ describe("raindex_deploy_strategy", () => {
 
   it("handles field validation error", async () => {
     const gui = {
-      setSelectToken: vi.fn(),
+      setSelectToken: vi.fn().mockResolvedValue({ value: undefined, error: undefined }),
       setFieldValue: vi.fn().mockReturnValue({
         value: undefined,
         error: { msg: "invalid", readableMsg: "Invalid field value" },
       }),
-      setDeposit: vi.fn(),
+      setDeposit: vi.fn().mockResolvedValue({ value: undefined, error: undefined }),
       getDeploymentTransactionArgs: vi.fn(),
     };
     const registry = {

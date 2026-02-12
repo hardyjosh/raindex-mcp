@@ -24,7 +24,7 @@ function makeClient(overrides: Record<string, unknown> = {}) {
       getQuotes: vi.fn().mockResolvedValue(ok([
         { maxOutput: "50", ioRatio: "1.5" },
       ])),
-      getRemoveCalldata: vi.fn().mockResolvedValue(ok("0xcalldata")),
+      getRemoveCalldata: vi.fn().mockReturnValue(ok("0xcalldata")),
     })),
     ...overrides,
   } as never;
@@ -35,7 +35,7 @@ describe("raindex_list_orders", () => {
     const client = makeClient();
     const result = await listOrders(client, {});
     expect(result.content[0].text).toContain("0xabc");
-    expect(client.getOrders).toHaveBeenCalledWith([], {}, 1);
+    expect(client.getOrders).toHaveBeenCalledWith(null, { owners: [] }, 1);
   });
 
   it("passes filters correctly", async () => {
@@ -49,7 +49,7 @@ describe("raindex_list_orders", () => {
     });
     expect(client.getOrders).toHaveBeenCalledWith(
       [8453],
-      { owners: ["0xOwner"], active: true, tokens: ["0xToken"] },
+      { owners: ["0xOwner"], active: true },
       2
     );
   });

@@ -29,6 +29,8 @@ export function toolError(message: string): { content: Array<{ type: "text"; tex
  */
 export function toolResult(data: unknown): { content: Array<{ type: "text"; text: string }> } {
   return {
-    content: [{ type: "text", text: typeof data === "string" ? data : JSON.stringify(data, null, 2) }],
+    content: [{ type: "text", text: typeof data === "string" ? data : JSON.stringify(data, (_key, value) =>
+      typeof value === "bigint" ? value.toString() : value
+    , 2) }],
   };
 }

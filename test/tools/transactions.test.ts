@@ -12,21 +12,23 @@ describe("raindex_get_transaction", () => {
   it("fetches transaction details", async () => {
     const client = {
       getTransaction: vi.fn().mockResolvedValue(ok({
-        hash: "0xtx",
-        sender: "0xSender",
-        block: 12345,
-        timestamp: 1700000000,
+        id: "0xtx",
+        from: "0xSender",
+        blockNumber: 12345n,
+        timestamp: 1700000000n,
       })),
     } as never;
 
     const result = await getTransaction(client, {
+      chain_id: 8453,
       orderbook_address: "0xOB",
       tx_hash: "0xtx",
     });
     const data = JSON.parse(result.content[0].text);
-    expect(data.hash).toBe("0xtx");
-    expect(data.sender).toBe("0xSender");
-    expect(client.getTransaction).toHaveBeenCalledWith("0xOB", "0xtx");
+    expect(data.id).toBe("0xtx");
+    expect(data.from).toBe("0xSender");
+    expect(data.blockNumber).toBe("12345");
+    expect(client.getTransaction).toHaveBeenCalledWith(8453, "0xOB", "0xtx");
   });
 
   it("returns error on failure", async () => {
@@ -35,6 +37,7 @@ describe("raindex_get_transaction", () => {
     } as never;
 
     const result = await getTransaction(client, {
+      chain_id: 1,
       orderbook_address: "0xOB",
       tx_hash: "0x0",
     });

@@ -328,6 +328,36 @@ List all known accounts/owners from subgraph data.
 | **Transactions** | `get_transaction` | Read |
 | **Info** | `list_tokens`, `list_accounts` | Read |
 
+## Build & Toolchain
+
+### Nix Flakes
+All builds and commands use Nix flakes for reproducibility. The flake provides Node.js, TypeScript, and all dev tooling.
+
+```bash
+nix develop          # Enter dev shell
+nix develop -c npm test   # Run tests via nix
+```
+
+No global installs required — everything comes from the flake.
+
+### Testing
+Full unit test coverage for every tool:
+- **Read tools**: Mock SDK responses, verify correct parameter passing and response formatting
+- **Write tools**: Verify calldata generation matches SDK output, test error cases
+- **Edge cases**: Missing params, invalid addresses, unreachable subgraphs, WASM init failures
+- **Integration tests**: Against a local fork (optional, for CI with RPC access)
+
+Test framework: vitest
+
+### CI/CD (GitHub Actions)
+- **On push**: `nix develop -c npm test` (lint + unit tests)
+- **On PR**: Same + formatting check
+- All CI runs through nix for reproducibility
+
+### Documentation
+- **README.md**: Human-facing setup guide, configuration, usage examples, tool reference
+- **AGENTS.md**: AI agent guide — use `nix develop` for all commands, project structure, conventions
+
 ## Implementation Notes
 
 1. **Error handling**: The SDK uses `WasmEncodedResult<T>` everywhere. The MCP server should unwrap these and return clean error messages via MCP's error response mechanism.

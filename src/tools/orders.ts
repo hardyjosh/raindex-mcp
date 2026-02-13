@@ -1,6 +1,22 @@
 import type { RaindexClient, GetOrdersFilters, Address, Hex, RaindexOrder } from "@rainlanguage/orderbook";
 import { unwrap, toolResult, toolError } from "../lib/errors.js";
 
+const RAINDEX_BASE_URL = "https://v6.raindex.finance";
+
+/**
+ * Generate a Raindex UI URL for an order.
+ */
+function orderUrl(chainId: number, orderbook: string, orderHash: string): string {
+  return `${RAINDEX_BASE_URL}/orders/${chainId}-${orderbook}-${orderHash}`;
+}
+
+/**
+ * Generate a Raindex UI URL for a vault.
+ */
+export function vaultUrl(chainId: number, orderbook: string, vaultId: string): string {
+  return `${RAINDEX_BASE_URL}/vaults/${chainId}-${orderbook}-${vaultId}`;
+}
+
 /**
  * Extract serializable order summary from a WASM RaindexOrder object.
  */
@@ -13,6 +29,7 @@ function orderSummary(o: RaindexOrder) {
     chainId: o.chainId,
     timestampAdded: o.timestampAdded?.toString(),
     tradesCount: o.tradesCount?.toString(),
+    url: orderUrl(o.chainId, o.orderbook, o.orderHash),
   };
 }
 

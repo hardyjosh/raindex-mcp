@@ -6,3 +6,4 @@ dist/
 *.js.map
 !vitest.config.ts
 !eslint.config.js
+settings.yaml

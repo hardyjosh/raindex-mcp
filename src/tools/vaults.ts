@@ -1,4 +1,9 @@
-import type { RaindexClient, GetVaultsFilters, Address, Hex } from "@rainlanguage/orderbook";
+import type {
+  RaindexClient,
+  GetVaultsFilters,
+  Address,
+  Hex,
+} from "@rainlanguage/orderbook";
 import { Float } from "@rainlanguage/orderbook";
 import { unwrap, toolResult, toolError } from "../lib/errors.js";
 
@@ -9,7 +14,7 @@ export async function listVaults(
     owner?: string;
     hide_zero_balance?: boolean;
     page?: number;
-  }
+  },
 ) {
   try {
     const filters: GetVaultsFilters = {
@@ -20,7 +25,7 @@ export async function listVaults(
     const result = await client.getVaults(
       params.chain_ids ?? null,
       filters,
-      params.page ?? 1
+      params.page ?? 1,
     );
     const vaults = unwrap(result, "Failed to list vaults");
     return toolResult(vaults);
@@ -35,13 +40,13 @@ export async function getVault(
     chain_id: number;
     orderbook_address: string;
     vault_id: string;
-  }
+  },
 ) {
   try {
     const result = await client.getVault(
       params.chain_id,
       params.orderbook_address as Address,
-      params.vault_id as Hex
+      params.vault_id as Hex,
     );
     const vault = unwrap(result, "Failed to get vault");
     return toolResult(vault);
@@ -56,13 +61,13 @@ export async function getVaultHistory(
     chain_id: number;
     orderbook_address: string;
     vault_id: string;
-  }
+  },
 ) {
   try {
     const vaultResult = await client.getVault(
       params.chain_id,
       params.orderbook_address as Address,
-      params.vault_id as Hex
+      params.vault_id as Hex,
     );
     const vault = unwrap(vaultResult, "Failed to get vault");
     const historyResult = await vault.getBalanceChanges();
@@ -80,13 +85,13 @@ export async function depositCalldata(
     orderbook_address: string;
     vault_id: string;
     amount: string;
-  }
+  },
 ) {
   try {
     const vaultResult = await client.getVault(
       params.chain_id,
       params.orderbook_address as Address,
-      params.vault_id as Hex
+      params.vault_id as Hex,
     );
     const vault = unwrap(vaultResult, "Failed to get vault");
 
@@ -94,14 +99,20 @@ export async function depositCalldata(
     const amount = unwrap(amountResult, "Failed to parse amount");
 
     const depositResult = await vault.getDepositCalldata(amount);
-    const calldata = unwrap(depositResult, "Failed to generate deposit calldata");
+    const calldata = unwrap(
+      depositResult,
+      "Failed to generate deposit calldata",
+    );
 
     // Check if approval is needed
     const allowanceResult = await vault.getAllowance();
     const allowance = unwrap(allowanceResult, "Failed to check allowance");
 
     const approvalResult = await vault.getApprovalCalldata(amount);
-    const approvalCalldata = unwrap(approvalResult, "Failed to generate approval calldata");
+    const approvalCalldata = unwrap(
+      approvalResult,
+      "Failed to generate approval calldata",
+    );
 
     return toolResult({
       calldata,
@@ -123,13 +134,13 @@ export async function withdrawCalldata(
     orderbook_address: string;
     vault_id: string;
     amount: string;
-  }
+  },
 ) {
   try {
     const vaultResult = await client.getVault(
       params.chain_id,
       params.orderbook_address as Address,
-      params.vault_id as Hex
+      params.vault_id as Hex,
     );
     const vault = unwrap(vaultResult, "Failed to get vault");
 
@@ -137,7 +148,10 @@ export async function withdrawCalldata(
     const amount = unwrap(amountResult, "Failed to parse amount");
 
     const withdrawResult = await vault.getWithdrawCalldata(amount);
-    const calldata = unwrap(withdrawResult, "Failed to generate withdraw calldata");
+    const calldata = unwrap(
+      withdrawResult,
+      "Failed to generate withdraw calldata",
+    );
 
     return toolResult({
       calldata,
@@ -154,7 +168,7 @@ export async function withdrawAllCalldata(
   params: {
     chain_id: number;
     owner: string;
-  }
+  },
 ) {
   try {
     const filters: GetVaultsFilters = {
@@ -165,7 +179,10 @@ export async function withdrawAllCalldata(
     const vaultsList = unwrap(result, "Failed to list vaults");
 
     const calldataResult = await vaultsList.getWithdrawCalldata();
-    const calldata = unwrap(calldataResult, "Failed to generate withdraw-all calldata");
+    const calldata = unwrap(
+      calldataResult,
+      "Failed to generate withdraw-all calldata",
+    );
 
     return toolResult({
       calldata,

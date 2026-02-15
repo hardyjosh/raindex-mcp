@@ -1,4 +1,8 @@
-import { RaindexClient, DotrainRegistry, OrderbookYaml } from "@rainlanguage/orderbook";
+import {
+  RaindexClient,
+  DotrainRegistry,
+  OrderbookYaml,
+} from "@rainlanguage/orderbook";
 import { unwrap } from "./lib/errors.js";
 
 export interface RaindexContext {
@@ -17,7 +21,7 @@ export async function createContext(): Promise<RaindexContext> {
 
   if (!settingsPath && !settingsYaml) {
     throw new Error(
-      "Either RAINDEX_SETTINGS_PATH or RAINDEX_SETTINGS_YAML must be set"
+      "Either RAINDEX_SETTINGS_PATH or RAINDEX_SETTINGS_YAML must be set",
     );
   }
 
@@ -39,7 +43,10 @@ export async function createContext(): Promise<RaindexContext> {
     const registryResult = await DotrainRegistry.new(registryUrl);
     registry = unwrap(registryResult, "Failed to load registry");
     const yamlResult = registry.getOrderbookYaml();
-    orderbookYaml = unwrap(yamlResult, "Failed to get OrderbookYaml from registry");
+    orderbookYaml = unwrap(
+      yamlResult,
+      "Failed to get OrderbookYaml from registry",
+    );
   }
 
   return { client, registry, orderbookYaml };

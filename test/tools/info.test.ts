@@ -11,10 +11,12 @@ function err(msg: string) {
 describe("raindex_list_tokens", () => {
   it("returns tokens from OrderbookYaml", async () => {
     const yaml = {
-      getTokens: vi.fn().mockResolvedValue(ok([
-        { address: "0xUSDC", symbol: "USDC", decimals: 6, chain_id: 8453 },
-        { address: "0xWETH", symbol: "WETH", decimals: 18, chain_id: 8453 },
-      ])),
+      getTokens: vi.fn().mockResolvedValue(
+        ok([
+          { address: "0xUSDC", symbol: "USDC", decimals: 6, chain_id: 8453 },
+          { address: "0xWETH", symbol: "WETH", decimals: 18, chain_id: 8453 },
+        ]),
+      ),
     } as never;
 
     const result = await listTokens(yaml);

@@ -7,13 +7,13 @@ export async function getTransaction(
     chain_id: number;
     orderbook_address: string;
     tx_hash: string;
-  }
+  },
 ) {
   try {
     const result = await client.getTransaction(
       params.chain_id,
       params.orderbook_address as `0x${string}`,
-      params.tx_hash as `0x${string}`
+      params.tx_hash as `0x${string}`,
     );
     const tx = unwrap(result, "Failed to get transaction");
     return toolResult(tx);

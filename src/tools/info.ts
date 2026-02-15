@@ -3,7 +3,9 @@ import { unwrap, toolResult, toolError } from "../lib/errors.js";
 
 export async function listTokens(orderbookYaml: OrderbookYaml | null) {
   if (!orderbookYaml) {
-    return toolError("OrderbookYaml not available. Ensure registry is configured.");
+    return toolError(
+      "OrderbookYaml not available. Ensure registry is configured.",
+    );
   }
   try {
     const result = await orderbookYaml.getTokens();

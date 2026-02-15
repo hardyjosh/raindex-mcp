@@ -11,12 +11,14 @@ function err(msg: string) {
 describe("raindex_get_transaction", () => {
   it("fetches transaction details", async () => {
     const client = {
-      getTransaction: vi.fn().mockResolvedValue(ok({
-        id: "0xtx",
-        from: "0xSender",
-        blockNumber: 12345n,
-        timestamp: 1700000000n,
-      })),
+      getTransaction: vi.fn().mockResolvedValue(
+        ok({
+          id: "0xtx",
+          from: "0xSender",
+          blockNumber: 12345n,
+          timestamp: 1700000000n,
+        }),
+      ),
     } as never;
 
     const result = await getTransaction(client, {

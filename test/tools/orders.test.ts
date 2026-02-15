@@ -1,5 +1,12 @@
 import { describe, it, expect, vi } from "vitest";
-import { listOrders, getOrder, getOrderTrades, getOrderQuotes, quoteAllOrders, removeOrderCalldata } from "../../src/tools/orders.js";
+import {
+  listOrders,
+  getOrder,
+  getOrderTrades,
+  getOrderQuotes,
+  quoteAllOrders,
+  removeOrderCalldata,
+} from "../../src/tools/orders.js";
 
 function ok<T>(value: T) {
   return { value, error: undefined };
@@ -18,21 +25,25 @@ function makeOrderObj(overrides: Record<string, unknown> = {}) {
     timestampAdded: 1700000000n,
     tradesCount: 5n,
     rainlang: "_ _: 1 2;",
-    getTradesList: vi.fn().mockResolvedValue(ok([
-      { id: "0xt1", amount: "100", timestamp: 1700000000 },
-    ])),
-    getQuotes: vi.fn().mockResolvedValue(ok([
-      {
-        pair: { pairName: "USDC/wtCOIN", inputIndex: 0, outputIndex: 0 },
-        blockNumber: 42000000,
-        success: true,
-        data: {
-          formattedMaxOutput: "87.844971445",
-          formattedRatio: "154.73985",
-          formattedInverseRatio: "0.0064624594",
+    getTradesList: vi
+      .fn()
+      .mockResolvedValue(
+        ok([{ id: "0xt1", amount: "100", timestamp: 1700000000 }]),
+      ),
+    getQuotes: vi.fn().mockResolvedValue(
+      ok([
+        {
+          pair: { pairName: "USDC/wtCOIN", inputIndex: 0, outputIndex: 0 },
+          blockNumber: 42000000,
+          success: true,
+          data: {
+            formattedMaxOutput: "87.844971445",
+            formattedRatio: "154.73985",
+            formattedInverseRatio: "0.0064624594",
+          },
         },
-      },
-    ])),
+      ]),
+    ),
     getRemoveCalldata: vi.fn().mockReturnValue(ok("0xcalldata")),
     ...overrides,
   };
@@ -65,7 +76,7 @@ describe("raindex_list_orders", () => {
     expect(client.getOrders).toHaveBeenCalledWith(
       null,
       { owners: ["0xabcdef"] },
-      1
+      1,
     );
   });
 
@@ -80,7 +91,7 @@ describe("raindex_list_orders", () => {
     expect(client.getOrders).toHaveBeenCalledWith(
       [8453],
       { owners: ["0xowner"], active: true },
-      2
+      2,
     );
   });
 
@@ -134,11 +145,13 @@ describe("raindex_get_order_trades", () => {
 
   it("handles getTradesList error", async () => {
     const client = makeClient({
-      getOrderByHash: vi.fn().mockResolvedValue(ok(
-        makeOrderObj({
-          getTradesList: vi.fn().mockResolvedValue(err("no trades")),
-        })
-      )),
+      getOrderByHash: vi.fn().mockResolvedValue(
+        ok(
+          makeOrderObj({
+            getTradesList: vi.fn().mockResolvedValue(err("no trades")),
+          }),
+        ),
+      ),
     });
     const result = await getOrderTrades(client, {
       chain_id: 1,
@@ -167,18 +180,22 @@ describe("raindex_get_order_quotes", () => {
 
   it("returns error field for failed quotes", async () => {
     const client = makeClient({
-      getOrderByHash: vi.fn().mockResolvedValue(ok(
-        makeOrderObj({
-          getQuotes: vi.fn().mockResolvedValue(ok([
-            {
-              pair: { pairName: "USDC/wtTSLA" },
-              blockNumber: 42000000,
-              success: false,
-              error: "Execution reverted with error: StalePrice\n",
-            },
-          ])),
-        })
-      )),
+      getOrderByHash: vi.fn().mockResolvedValue(
+        ok(
+          makeOrderObj({
+            getQuotes: vi.fn().mockResolvedValue(
+              ok([
+                {
+                  pair: { pairName: "USDC/wtTSLA" },
+                  blockNumber: 42000000,
+                  success: false,
+                  error: "Execution reverted with error: StalePrice\n",
+                },
+              ]),
+            ),
+          }),
+        ),
+      ),
     });
     const result = await getOrderQuotes(client, {
       chain_id: 8453,
@@ -208,7 +225,7 @@ describe("raindex_quote_all_orders", () => {
     expect(client.getOrders).toHaveBeenCalledWith(
       null,
       { owners: ["0xabcd"] },
-      1
+      1,
     );
   });
 });

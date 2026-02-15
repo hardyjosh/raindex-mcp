@@ -10,14 +10,19 @@ export async function deployStrategy(
     fields: Record<string, string>;
     deposits?: Record<string, string>;
     select_tokens?: Record<string, string>;
-  }
+  },
 ) {
   if (!registry) {
-    return toolError("Registry not configured. Set RAINDEX_REGISTRY_URL to use deployment tools.");
+    return toolError(
+      "Registry not configured. Set RAINDEX_REGISTRY_URL to use deployment tools.",
+    );
   }
   try {
     // Get the GUI source from registry
-    const guiResult = await registry.getGui(params.strategy_key, params.deployment_key);
+    const guiResult = await registry.getGui(
+      params.strategy_key,
+      params.deployment_key,
+    );
     const gui = unwrap(guiResult, "Failed to get strategy GUI");
 
     // Set select tokens

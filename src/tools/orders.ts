@@ -1,4 +1,10 @@
-import type { RaindexClient, GetOrdersFilters, Address, Hex, RaindexOrder } from "@rainlanguage/orderbook";
+import type {
+  RaindexClient,
+  GetOrdersFilters,
+  Address,
+  Hex,
+  RaindexOrder,
+} from "@rainlanguage/orderbook";
 import { unwrap, toolResult, toolError } from "../lib/errors.js";
 
 const RAINDEX_BASE_URL = "https://v6.raindex.finance";
@@ -6,14 +12,22 @@ const RAINDEX_BASE_URL = "https://v6.raindex.finance";
 /**
  * Generate a Raindex UI URL for an order.
  */
-function orderUrl(chainId: number, orderbook: string, orderHash: string): string {
+function orderUrl(
+  chainId: number,
+  orderbook: string,
+  orderHash: string,
+): string {
   return `${RAINDEX_BASE_URL}/orders/${chainId}-${orderbook}-${orderHash}`;
 }
 
 /**
  * Generate a Raindex UI URL for a vault.
  */
-export function vaultUrl(chainId: number, orderbook: string, vaultId: string): string {
+export function vaultUrl(
+  chainId: number,
+  orderbook: string,
+  vaultId: string,
+): string {
   return `${RAINDEX_BASE_URL}/vaults/${chainId}-${orderbook}-${vaultId}`;
 }
 
@@ -41,7 +55,7 @@ export async function listOrders(
     active?: boolean;
     tokens?: string[];
     page?: number;
-  }
+  },
 ) {
   try {
     const filters: Partial<GetOrdersFilters> = {
@@ -52,7 +66,7 @@ export async function listOrders(
     const result = await client.getOrders(
       params.chain_ids ?? null,
       filters as GetOrdersFilters,
-      params.page ?? 1
+      params.page ?? 1,
     );
     const orders = unwrap(result, "Failed to list orders");
 
@@ -70,13 +84,13 @@ export async function getOrder(
     chain_id: number;
     orderbook_address: string;
     order_hash: string;
-  }
+  },
 ) {
   try {
     const result = await client.getOrderByHash(
       params.chain_id,
       params.orderbook_address as Address,
-      params.order_hash as Hex
+      params.order_hash as Hex,
     );
     const order = unwrap(result, "Failed to get order");
     return toolResult({
@@ -94,13 +108,13 @@ export async function getOrderTrades(
     chain_id: number;
     orderbook_address: string;
     order_hash: string;
-  }
+  },
 ) {
   try {
     const orderResult = await client.getOrderByHash(
       params.chain_id,
       params.orderbook_address as Address,
-      params.order_hash as Hex
+      params.order_hash as Hex,
     );
     const order = unwrap(orderResult, "Failed to get order");
     const tradesResult = await order.getTradesList();
@@ -129,19 +143,20 @@ export async function getOrderQuotes(
     chain_id: number;
     orderbook_address: string;
     order_hash: string;
-  }
+  },
 ) {
   try {
     const orderResult = await client.getOrderByHash(
       params.chain_id,
       params.orderbook_address as Address,
-      params.order_hash as Hex
+      params.order_hash as Hex,
     );
     const order = unwrap(orderResult, "Failed to get order");
     const quotesResult = await order.getQuotes();
     const quotes = unwrap(quotesResult, "Failed to get quotes");
 
     // Extract clean quote data
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results: QuoteResult[] = quotes.map((q: any) => {
       const base: QuoteResult = {
         pair: q.pair?.pairName ?? "unknown",
@@ -172,13 +187,13 @@ export async function quoteAllOrders(
     chain_ids?: number[];
     owner: string;
     active_only?: boolean;
-  }
+  },
 ) {
   try {
     const result = await client.getOrders(
       params.chain_ids ?? null,
       { owners: [params.owner.toLowerCase() as Address] } as GetOrdersFilters,
-      1
+      1,
     );
     const orders = unwrap(result, "Failed to list orders");
 
@@ -193,6 +208,7 @@ export async function quoteAllOrders(
       const q = await o.getQuotes();
       if (!q.value || q.value.length === 0) continue;
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const quotes: QuoteResult[] = q.value.map((qi: any) => {
         const base: QuoteResult = {
           pair: qi.pair?.pairName ?? "unknown",
@@ -223,17 +239,20 @@ export async function removeOrderCalldata(
     chain_id: number;
     orderbook_address: string;
     order_hash: string;
-  }
+  },
 ) {
   try {
     const orderResult = await client.getOrderByHash(
       params.chain_id,
       params.orderbook_address as Address,
-      params.order_hash as Hex
+      params.order_hash as Hex,
     );
     const order = unwrap(orderResult, "Failed to get order");
     const calldataResult = order.getRemoveCalldata();
-    const calldata = unwrap(calldataResult, "Failed to generate remove calldata");
+    const calldata = unwrap(
+      calldataResult,
+      "Failed to generate remove calldata",
+    );
     return toolResult({
       calldata,
       to: params.orderbook_address,

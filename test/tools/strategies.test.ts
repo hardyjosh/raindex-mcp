@@ -1,5 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
-import { listStrategies, getStrategyDetails, composeRainlang } from "../../src/tools/strategies.js";
+import {
+  listStrategies,
+  getStrategyDetails,
+  composeRainlang,
+} from "../../src/tools/strategies.js";
 
 vi.mock("@rainlanguage/orderbook", () => ({
   DotrainOrder: {
@@ -21,13 +25,19 @@ function ok<T>(value: T) {
 
 function makeRegistry(overrides: Record<string, unknown> = {}) {
   return {
-    getAllOrderDetails: vi.fn().mockReturnValue(ok({
-      valid: { "fixed-limit": { name: "Fixed Limit", description: "A limit order" } },
-      invalid: {},
-    })),
-    getDeploymentDetails: vi.fn().mockReturnValue(ok({
-      deployments: { base: { name: "Base" } },
-    })),
+    getAllOrderDetails: vi.fn().mockReturnValue(
+      ok({
+        valid: {
+          "fixed-limit": { name: "Fixed Limit", description: "A limit order" },
+        },
+        invalid: {},
+      }),
+    ),
+    getDeploymentDetails: vi.fn().mockReturnValue(
+      ok({
+        deployments: { base: { name: "Base" } },
+      }),
+    ),
     ...overrides,
   } as never;
 }
@@ -49,7 +59,9 @@ describe("raindex_list_strategies", () => {
 describe("raindex_get_strategy_details", () => {
   it("returns deployment details for a strategy", async () => {
     const registry = makeRegistry();
-    const result = await getStrategyDetails(registry, { strategy_key: "fixed-limit" });
+    const result = await getStrategyDetails(registry, {
+      strategy_key: "fixed-limit",
+    });
     expect(result.content[0].text).toContain("Base");
     expect(registry.getDeploymentDetails).toHaveBeenCalledWith("fixed-limit");
   });

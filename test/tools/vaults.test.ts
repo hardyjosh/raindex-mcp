@@ -1,5 +1,12 @@
 import { describe, it, expect, vi } from "vitest";
-import { listVaults, getVault, getVaultHistory, depositCalldata, withdrawCalldata, withdrawAllCalldata } from "../../src/tools/vaults.js";
+import {
+  listVaults,
+  getVault,
+  getVaultHistory,
+  depositCalldata,
+  withdrawCalldata,
+  withdrawAllCalldata,
+} from "../../src/tools/vaults.js";
 
 // Mock Float.parse at module level
 vi.mock("@rainlanguage/orderbook", () => ({
@@ -20,9 +27,11 @@ function makeVault() {
     id: "0x01",
     token: { symbol: "USDC" },
     balance: "1000",
-    getBalanceChanges: vi.fn().mockResolvedValue(ok([
-      { amount: "500", timestamp: 1700000000, txHash: "0xtx1" },
-    ])),
+    getBalanceChanges: vi
+      .fn()
+      .mockResolvedValue(
+        ok([{ amount: "500", timestamp: 1700000000, txHash: "0xtx1" }]),
+      ),
     getDepositCalldata: vi.fn().mockResolvedValue(ok("0xdeposit")),
     getWithdrawCalldata: vi.fn().mockResolvedValue(ok("0xwithdraw")),
     getApprovalCalldata: vi.fn().mockResolvedValue(ok("0xapprove")),
@@ -33,10 +42,12 @@ function makeVault() {
 function makeClient(overrides: Record<string, unknown> = {}) {
   const vault = makeVault();
   return {
-    getVaults: vi.fn().mockResolvedValue(ok({
-      items: [vault],
-      getWithdrawCalldata: vi.fn().mockResolvedValue(ok("0xwithdrawAll")),
-    })),
+    getVaults: vi.fn().mockResolvedValue(
+      ok({
+        items: [vault],
+        getWithdrawCalldata: vi.fn().mockResolvedValue(ok("0xwithdrawAll")),
+      }),
+    ),
     getVault: vi.fn().mockResolvedValue(ok(vault)),
     ...overrides,
   } as never;
@@ -47,7 +58,11 @@ describe("raindex_list_vaults", () => {
     const client = makeClient();
     const result = await listVaults(client, {});
     expect(result.content[0].text).toContain("0x01");
-    expect(client.getVaults).toHaveBeenCalledWith(null, { owners: [], hideZeroBalance: true }, 1);
+    expect(client.getVaults).toHaveBeenCalledWith(
+      null,
+      { owners: [], hideZeroBalance: true },
+      1,
+    );
   });
 
   it("passes owner filter", async () => {
@@ -56,7 +71,7 @@ describe("raindex_list_vaults", () => {
     expect(client.getVaults).toHaveBeenCalledWith(
       null,
       { owners: ["0xOwner"], hideZeroBalance: false },
-      1
+      1,
     );
   });
 

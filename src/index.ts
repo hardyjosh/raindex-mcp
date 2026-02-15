@@ -3,7 +3,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { createContext } from "./client.js";
+import { createContext, resolveRegistry } from "./client.js";
 import {
   listOrders,
   getOrder,
@@ -196,7 +196,16 @@ async function main() {
   server.tool(
     "raindex_list_strategies",
     "List available strategies from the configured registry",
-    async () => listStrategies(ctx.registry),
+    {
+      registry_url: z
+        .string()
+        .optional()
+        .describe("Registry URL (overrides default)"),
+    },
+    async (params) => {
+      const { registry } = await resolveRegistry(ctx, params.registry_url);
+      return listStrategies(registry);
+    },
   );
 
   server.tool(
@@ -204,8 +213,15 @@ async function main() {
     "Get deployment details for a specific strategy",
     {
       strategy_key: z.string().describe("Strategy key from registry"),
+      registry_url: z
+        .string()
+        .optional()
+        .describe("Registry URL (overrides default)"),
     },
-    async (params) => getStrategyDetails(ctx.registry, params),
+    async (params) => {
+      const { registry } = await resolveRegistry(ctx, params.registry_url);
+      return getStrategyDetails(registry, params);
+    },
   );
 
   server.tool(
@@ -240,8 +256,15 @@ async function main() {
         .record(z.string(), z.string())
         .optional()
         .describe('Token selections (e.g. {"input-token": "0x..."})'),
+      registry_url: z
+        .string()
+        .optional()
+        .describe("Registry URL (overrides default)"),
     },
-    async (params) => deployStrategy(ctx.registry, params),
+    async (params) => {
+      const { registry } = await resolveRegistry(ctx, params.registry_url);
+      return deployStrategy(registry, params);
+    },
   );
 
   // --- Transactions ---
@@ -262,7 +285,16 @@ async function main() {
   server.tool(
     "raindex_list_tokens",
     "List all tokens defined in the current settings/registry",
-    async () => listTokens(ctx.orderbookYaml),
+    {
+      registry_url: z
+        .string()
+        .optional()
+        .describe("Registry URL (overrides default)"),
+    },
+    async (params) => {
+      const { orderbookYaml } = await resolveRegistry(ctx, params.registry_url);
+      return listTokens(orderbookYaml);
+    },
   );
 
   server.tool(

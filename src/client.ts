@@ -11,6 +11,43 @@ export interface RaindexContext {
   orderbookYaml: OrderbookYaml | null;
 }
 
+/** Cache of resolved registries by URL. */
+const registryCache = new Map<
+  string,
+  { registry: DotrainRegistry; orderbookYaml: OrderbookYaml }
+>();
+
+/**
+ * Resolve a registry — uses the per-tool `registry_url` param if provided,
+ * otherwise falls back to the context default. Caches by URL.
+ */
+export async function resolveRegistry(
+  ctx: RaindexContext,
+  registryUrl?: string,
+): Promise<{
+  registry: DotrainRegistry | null;
+  orderbookYaml: OrderbookYaml | null;
+}> {
+  if (!registryUrl) {
+    return { registry: ctx.registry, orderbookYaml: ctx.orderbookYaml };
+  }
+
+  const cached = registryCache.get(registryUrl);
+  if (cached) return cached;
+
+  const registryResult = await DotrainRegistry.new(registryUrl);
+  const registry = unwrap(registryResult, "Failed to load registry");
+  const yamlResult = registry.getOrderbookYaml();
+  const orderbookYaml = unwrap(
+    yamlResult,
+    "Failed to get OrderbookYaml from registry",
+  );
+
+  const entry = { registry, orderbookYaml };
+  registryCache.set(registryUrl, entry);
+  return entry;
+}
+
 /**
  * Initialize the Raindex client and optional registry from environment variables.
  */

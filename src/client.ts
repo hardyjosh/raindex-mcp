@@ -19,11 +19,13 @@ const registryCache = new Map<
 
 /**
  * Resolve a registry — uses the per-tool `registry_url` param if provided,
- * otherwise falls back to the context default. Caches by URL.
+ * otherwise falls back to the context default. Caches by URL unless
+ * `forceRefresh` is true.
  */
 export async function resolveRegistry(
   ctx: RaindexContext,
   registryUrl?: string,
+  forceRefresh?: boolean,
 ): Promise<{
   registry: DotrainRegistry | null;
   orderbookYaml: OrderbookYaml | null;
@@ -32,8 +34,10 @@ export async function resolveRegistry(
     return { registry: ctx.registry, orderbookYaml: ctx.orderbookYaml };
   }
 
-  const cached = registryCache.get(registryUrl);
-  if (cached) return cached;
+  if (!forceRefresh) {
+    const cached = registryCache.get(registryUrl);
+    if (cached) return cached;
+  }
 
   const registryResult = await DotrainRegistry.new(registryUrl);
   const registry = unwrap(registryResult, "Failed to load registry");

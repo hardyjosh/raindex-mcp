@@ -201,9 +201,17 @@ async function main() {
         .string()
         .optional()
         .describe("Registry URL (overrides default)"),
+      force_refresh: z
+        .boolean()
+        .optional()
+        .describe("Force re-fetch of the registry (bypass cache)"),
     },
     async (params) => {
-      const { registry } = await resolveRegistry(ctx, params.registry_url);
+      const { registry } = await resolveRegistry(
+        ctx,
+        params.registry_url,
+        params.force_refresh,
+      );
       return listStrategies(registry);
     },
   );
@@ -217,9 +225,17 @@ async function main() {
         .string()
         .optional()
         .describe("Registry URL (overrides default)"),
+      force_refresh: z
+        .boolean()
+        .optional()
+        .describe("Force re-fetch of the registry (bypass cache)"),
     },
     async (params) => {
-      const { registry } = await resolveRegistry(ctx, params.registry_url);
+      const { registry } = await resolveRegistry(
+        ctx,
+        params.registry_url,
+        params.force_refresh,
+      );
       return getStrategyDetails(registry, params);
     },
   );
@@ -260,9 +276,17 @@ async function main() {
         .string()
         .optional()
         .describe("Registry URL (overrides default)"),
+      force_refresh: z
+        .boolean()
+        .optional()
+        .describe("Force re-fetch of the registry (bypass cache)"),
     },
     async (params) => {
-      const { registry } = await resolveRegistry(ctx, params.registry_url);
+      const { registry } = await resolveRegistry(
+        ctx,
+        params.registry_url,
+        params.force_refresh,
+      );
       return deployStrategy(registry, params);
     },
   );
@@ -290,9 +314,17 @@ async function main() {
         .string()
         .optional()
         .describe("Registry URL (overrides default)"),
+      force_refresh: z
+        .boolean()
+        .optional()
+        .describe("Force re-fetch of the registry (bypass cache)"),
     },
     async (params) => {
-      const { orderbookYaml } = await resolveRegistry(ctx, params.registry_url);
+      const { orderbookYaml } = await resolveRegistry(
+        ctx,
+        params.registry_url,
+        params.force_refresh,
+      );
       return listTokens(orderbookYaml);
     },
   );

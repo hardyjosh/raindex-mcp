@@ -20,7 +20,7 @@ The server requires a YAML settings string (or path to a settings file) that def
 |---|---|---|
 | `RAINDEX_SETTINGS_PATH` | Yes* | Path to a YAML settings file |
 | `RAINDEX_SETTINGS_YAML` | Yes* | Inline YAML settings string (alternative to path) |
-| `RAINDEX_REGISTRY_URL` | No | URL to a dotrain registry manifest for strategy browsing |
+| `RAINDEX_REGISTRY_URL` | No | URL to a dotrain registry manifest (default: `https://raw.githubusercontent.com/rainlanguage/rain.strategies/main/registry`) |
 
 *One of `RAINDEX_SETTINGS_PATH` or `RAINDEX_SETTINGS_YAML` is required.
 

@@ -1,0 +1,23 @@
+name: CI
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - name: Install dependencies
+        run: nix develop -c npm ci
+      - name: Build
+        run: nix develop -c npm run build
+      - name: Test
+        run: nix develop -c npm test
+      - name: Lint
+        run: nix develop -c npm run lint
+      - name: Format check
+        run: nix develop -c npm run fmt:check

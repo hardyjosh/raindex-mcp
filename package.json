@@ -21,13 +21,13 @@
     "@rainlanguage/orderbook": "0.0.1-alpha.207"
   },
   "devDependencies": {
+    "@eslint/js": "^9.0.0",
     "@types/node": "^22.0.0",
     "eslint": "^9.0.0",
-    "@eslint/js": "^9.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.9.3",
     "typescript-eslint": "^8.0.0",
-    "typescript": "^5.7.0",
-    "vitest": "^3.0.0",
-    "prettier": "^3.0.0"
+    "vitest": "^3.0.0"
   },
   "engines": {
     "node": ">=22"

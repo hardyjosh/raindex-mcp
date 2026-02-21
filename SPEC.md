@@ -273,6 +273,30 @@ Configure and generate deployment calldata for a strategy from the registry. Thi
 
 ---
 
+#### `raindex_deploy_custom`
+Deploy a custom .rain file directly without requiring a registry. Supports self-contained dotrain files with embedded configuration.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `dotrain_source` | `string` | Yes | Full dotrain source including YAML config and Rainlang |
+| `deployment_key` | `string` | Yes | Deployment key defined in the dotrain file |
+| `owner` | `string` | Yes | Deployer/owner wallet address |
+| `fields` | `Record<string, string>` | Yes | Binding values for GUI fields |
+| `deposits` | `Record<string, string>` | No | Token deposits |
+| `select_tokens` | `Record<string, string>` | No | Token selections |
+| `additional_settings` | `string[]` | No | Additional YAML to merge (empty for self-contained files) |
+
+**Returns:** `{ approvals: Array<{token, calldata}>, deploymentCalldata: string, orderbookAddress: string, chainId: number }`
+
+**SDK:** `DotrainOrderGui.getDeploymentKeys()`, `DotrainOrderGui.newWithDeployment()`, `gui.setFieldValue()`, `gui.setDeposit()`, `gui.getDeploymentTransactionArgs(owner)`
+
+**Notes:**
+- For self-contained files, pass `[]` for `additional_settings`
+- The dotrain must include `deployment-block` in orderbook config
+- GUI deployments require `description` and `fields` (even if empty)
+
+---
+
 ### Transactions
 
 #### `raindex_get_transaction`
@@ -324,7 +348,7 @@ List all known accounts/owners from subgraph data.
 | **Orders** | `list_orders`, `get_order`, `get_order_trades`, `get_order_quotes`, `remove_order_calldata` | Read + Calldata |
 | **Vaults** | `list_vaults`, `get_vault`, `get_vault_history`, `deposit_calldata`, `withdraw_calldata`, `withdraw_all_calldata` | Read + Calldata |
 | **Strategies** | `list_strategies`, `get_strategy_details`, `compose_rainlang` | Read |
-| **Deployment** | `deploy_strategy` | Calldata |
+| **Deployment** | `deploy_strategy`, `deploy_custom` | Calldata |
 | **Transactions** | `get_transaction` | Read |
 | **Info** | `list_tokens`, `list_accounts` | Read |
 

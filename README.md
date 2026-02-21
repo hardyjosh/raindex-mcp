@@ -94,7 +94,8 @@ RAINDEX_SETTINGS_PATH=./settings.yaml node dist/index.js
 | `raindex_list_strategies` | List strategies from registry |
 | `raindex_get_strategy_details` | Deployment details for a strategy |
 | `raindex_compose_rainlang` | Compose Rainlang from dotrain source |
-| `raindex_deploy_strategy` | Generate deployment calldata |
+| `raindex_deploy_strategy` | Generate deployment calldata from registry strategy |
+| `raindex_deploy_custom` | **NEW:** Deploy custom .rain files directly (no registry needed) |
 
 ### Info
 | Tool | Description |
@@ -119,6 +120,79 @@ nix develop -c npm run fmt       # Format
 nix develop -c npm run fmt:check # Check formatting
 nix develop -c npm run build     # Compile TypeScript
 ```
+
+## Custom Deployment
+
+The new `raindex_deploy_custom` tool allows deploying arbitrary `.rain` files without needing a registry. This is useful for:
+- Testing custom strategies
+- Deploying modified versions of existing strategies
+- Programmatic deployment pipelines
+
+### Self-contained .rain files
+
+When your `.rain` file includes all configuration (networks, tokens, orderbooks, deployers) before the `---` separator, pass an empty array for `additional_settings`:
+
+```typescript
+// Self-contained file with everything embedded
+{
+  dotrain_source: fullDotrainWithEmbeddedConfig,
+  deployment_key: "my-deployment",
+  owner: "0xYourAddress",
+  fields: { "baseline": "0.95" },
+  deposits: { "usdc": "100" },
+  additional_settings: []  // Empty when self-contained
+}
+```
+
+### Required YAML fields
+
+Your dotrain configuration must include:
+
+```yaml
+orderbooks:
+  base:
+    address: 0x...
+    network: base
+    deployment-block: 36667253  # Required!
+    subgraph: base
+
+gui:
+  deployments:
+    my-deployment:
+      name: Deployment Name
+      description: Required description  # Required!
+      deposits:
+        - token: usdc
+      fields:  # Required even if empty
+        - binding: my-param
+          name: Parameter Name
+          description: Parameter description
+```
+
+## Troubleshooting
+
+### "YAML file is empty"
+This occurs when the SDK receives a string instead of an array. The MCP handles this internally, but if you're extending the server, ensure you pass `[]` for self-contained files:
+```typescript
+await DotrainOrder.create(dotrainSource, []);  // Empty array, not undefined
+```
+
+### "Missing required field 'deployment-block'"
+Add `deployment-block` to your orderbook configuration with the contract deployment block number.
+
+### RPC rate limiting
+Configure multiple RPCs in your settings YAML:
+```yaml
+networks:
+  base:
+    rpcs:
+      - https://base-rpc.publicnode.com
+      - https://base.llamarpc.com
+      - https://mainnet.base.org
+```
+
+### Registry tools return "Registry not configured"
+Set `RAINDEX_REGISTRY_URL` environment variable, or use `raindex_deploy_custom` for direct deployment without a registry.
 
 ## License
 

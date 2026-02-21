@@ -26,6 +26,7 @@ import {
   composeRainlang,
 } from "./tools/strategies.js";
 import { deployStrategy } from "./tools/deployment.js";
+import { deployCustomDotrain } from "./tools/custom-deployment.js";
 import { getTransaction } from "./tools/transactions.js";
 import { listTokens, listAccounts } from "./tools/info.js";
 
@@ -289,6 +290,40 @@ async function main() {
       );
       return deployStrategy(registry, params);
     },
+  );
+
+  server.tool(
+    "raindex_deploy_custom",
+    "Deploy a custom .rain file directly (not from registry). Supports self-contained dotrain files with embedded configuration.",
+    {
+      dotrain_source: z
+        .string()
+        .describe(
+          "Full dotrain source including YAML config and Rainlang (separated by ---)",
+        ),
+      deployment_key: z
+        .string()
+        .describe("Deployment key defined in the dotrain file"),
+      owner: z.string().describe("Deployer/owner wallet address"),
+      fields: z
+        .record(z.string(), z.string())
+        .describe('Binding values for GUI fields (e.g. {"baseline": "0.95"})'),
+      deposits: z
+        .record(z.string(), z.string())
+        .optional()
+        .describe('Token deposits (e.g. {"usdc": "100"})'),
+      select_tokens: z
+        .record(z.string(), z.string())
+        .optional()
+        .describe('Token selections (e.g. {"input-token": "0x..."})'),
+      additional_settings: z
+        .array(z.string())
+        .optional()
+        .describe(
+          "Additional YAML settings to merge (for non-self-contained files)",
+        ),
+    },
+    async (params) => deployCustomDotrain(params),
   );
 
   // --- Transactions ---

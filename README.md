@@ -120,6 +120,67 @@ nix develop -c npm run fmt:check # Check formatting
 nix develop -c npm run build     # Compile TypeScript
 ```
 
+## Example: Deploy Auction-DCA Strategy
+
+Here's a complete example using the MCP tools to deploy an auction-based DCA order:
+
+```typescript
+// 1. List available strategies
+const strategies = await raindex_list_strategies();
+// Returns: fixed-limit, auction-dca, grid, dynamic-spread, etc.
+
+// 2. Get deployment details for auction-dca
+const details = await raindex_get_strategy_details({ strategy_key: "auction-dca" });
+// Shows available deployments: arbitrum, base, polygon, base-pyth, etc.
+
+// 3. Deploy using raindex_deploy_strategy
+const result = await raindex_deploy_strategy({
+  strategy_key: "auction-dca",
+  deployment_key: "base",
+  owner: "0xYourWalletAddress",
+  fields: {
+    "amount-per-epoch": "1",           // Budget per period
+    "baseline": "0.95",                // Baseline IO ratio
+    "initial-io": "1.00",              // Starting IO ratio
+    "max-trade-amount": "0.5",         // Max per trade
+    "min-trade-amount": "0.1",         // Min per trade
+    "time-per-amount-epoch": "86400",  // 1 day in seconds
+    "time-per-trade-epoch": "3600"     // 1 hour auction period
+  },
+  deposits: {
+    "output": "100"  // 100 tokens to sell
+  },
+  select_tokens: {
+    "output": "0xTokenToSell...",
+    "input": "0xTokenToBuy..."
+  }
+});
+
+// 4. Result contains calldata ready to sign
+// { approvals: [...], deploymentCalldata: "0x...", orderbookAddress: "0x...", chainId: 8453 }
+```
+
+## Troubleshooting
+
+### "Registry not configured"
+Set `RAINDEX_REGISTRY_URL` environment variable. Default registry:
+```
+https://raw.githubusercontent.com/rainlanguage/rain.strategies/main/registry
+```
+
+### Float conversion errors
+Ensure numeric field values are passed as strings with reasonable precision:
+```typescript
+// Good
+fields: { "baseline": "0.95" }
+
+// Bad - too many decimals can cause precision errors
+fields: { "baseline": "0.9523456789012345678901234567890" }
+```
+
+### Missing field values
+Use `raindex_get_strategy_details` to see all required fields for a deployment before calling `raindex_deploy_strategy`.
+
 ## License
 
 MIT

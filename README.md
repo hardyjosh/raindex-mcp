@@ -120,6 +120,10 @@ nix develop -c npm run fmt:check # Check formatting
 nix develop -c npm run build     # Compile TypeScript
 ```
 
+## Documentation
+
+- [Token Discovery Guide](docs/TOKEN-DISCOVERY.md) — Finding and verifying token addresses
+
 ## License
 
 MIT

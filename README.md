@@ -120,6 +120,10 @@ nix develop -c npm run fmt:check # Check formatting
 nix develop -c npm run build     # Compile TypeScript
 ```
 
+## Documentation
+
+- [Order Removal Guide](docs/ORDER-REMOVAL.md) — Query, remove, and redeploy strategies
+
 ## License
 
 MIT

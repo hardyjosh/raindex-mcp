@@ -120,6 +120,10 @@ nix develop -c npm run fmt:check # Check formatting
 nix develop -c npm run build     # Compile TypeScript
 ```
 
+## Troubleshooting
+
+See [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) for common errors and solutions.
+
 ## License
 
 MIT

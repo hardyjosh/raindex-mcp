@@ -94,7 +94,9 @@ RAINDEX_SETTINGS_PATH=./settings.yaml node dist/index.js
 | `raindex_list_strategies` | List strategies from registry |
 | `raindex_get_strategy_details` | Deployment details for a strategy |
 | `raindex_compose_rainlang` | Compose Rainlang from dotrain source |
-| `raindex_deploy_strategy` | Generate deployment calldata |
+| `raindex_deploy_strategy` | Generate deployment calldata (supports custom tokens) |
+
+> **Tip:** `raindex_deploy_strategy` accepts any valid ERC-20 token address in `select_tokens`, not just tokens from CoinGecko lists. See [docs/CUSTOM-TOKEN-DEPLOYMENT.md](docs/CUSTOM-TOKEN-DEPLOYMENT.md) for details.
 
 ### Info
 | Tool | Description |

@@ -93,8 +93,13 @@ export async function getStrategyDetails(
         }
 
         gui.free();
-      } catch {
-        // If GUI introspection fails, still return the basic metadata
+      } catch (err) {
+        console.error(
+          `[strategies] GUI introspection failed for ${params.strategy_key}/${deploymentKey}:`,
+          err instanceof Error ? err.message : String(err),
+        );
+        entry.fields = {};
+        entry._guiError = err instanceof Error ? err.message : String(err);
       }
 
       deployments[deploymentKey] = entry;

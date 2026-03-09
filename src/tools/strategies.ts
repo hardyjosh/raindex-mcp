@@ -70,7 +70,11 @@ export async function getStrategyDetails(
         entry.fields = fields;
         if (Object.keys(fields).length === 0) {
           console.warn(
-            `[strategies] No field definitions found for ${params.strategy_key}/${deploymentKey}`,
+            `[strategies] No field definitions found for ${params.strategy_key}/${deploymentKey}. fieldDefs array length: ${fieldDefs.length}`,
+          );
+        } else {
+          console.error(
+            `[strategies] ${params.strategy_key}/${deploymentKey}: ${Object.keys(fields).length} fields: ${Object.keys(fields).join(', ')}`,
           );
         }
 

@@ -42,8 +42,11 @@ export function toolResult(data: unknown): {
             ? data
             : JSON.stringify(
                 data,
-                (_key, value) =>
-                  typeof value === "bigint" ? value.toString() : value,
+                (_key, value) => {
+                  if (value instanceof Map) return Object.fromEntries(value);
+                  if (typeof value === "bigint") return value.toString();
+                  return value;
+                },
                 2,
               ),
       },

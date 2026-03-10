@@ -28,8 +28,93 @@ export async function getStrategyDetails(
   }
   try {
     const result = registry.getDeploymentDetails(params.strategy_key);
-    const details = unwrap(result, "Failed to get strategy details");
-    return toolResult(details);
+    const deploymentMap = unwrap(result, "Failed to get strategy details");
+
+    // Enrich each deployment with field definitions from the GUI
+    const deployments: Record<string, unknown> = {};
+    for (const [deploymentKey, meta] of deploymentMap) {
+      const entry: Record<string, unknown> = {
+        name: meta.name,
+        description: meta.description,
+        short_description: meta.short_description,
+      };
+
+      try {
+        const guiResult = await registry.getGui(
+          params.strategy_key,
+          deploymentKey,
+        );
+        const gui = unwrap(guiResult, "Failed to get GUI");
+
+        const fieldDefs = unwrap(
+          gui.getAllFieldDefinitions(),
+          "Failed to get field definitions",
+        );
+        const fields: Record<string, unknown> = {};
+        for (const f of fieldDefs) {
+          fields[f.binding] = {
+            name: f.name,
+            description: f.description,
+            ...(f.default !== undefined ? { default: f.default } : {}),
+            ...(f.presets?.length
+              ? {
+                  presets: f.presets.map((p) => ({
+                    id: p.id,
+                    name: p.name,
+                    value: p.value,
+                  })),
+                }
+              : {}),
+          };
+        }
+        entry.fields = fields;
+        if (Object.keys(fields).length === 0) {
+          console.warn(
+            `[strategies] No field definitions found for ${params.strategy_key}/${deploymentKey}. fieldDefs array length: ${fieldDefs.length}`,
+          );
+        } else {
+          console.error(
+            `[strategies] ${params.strategy_key}/${deploymentKey}: ${Object.keys(fields).length} fields: ${Object.keys(fields).join(', ')}`,
+          );
+        }
+
+        const selectTokens = unwrap(
+          gui.getSelectTokens(),
+          "Failed to get select tokens",
+        );
+        if (selectTokens.length > 0) {
+          const st: Record<string, unknown> = {};
+          for (const t of selectTokens) {
+            st[t.key] = {
+              name: t.name,
+              description: t.description,
+            };
+          }
+          entry.selectTokens = st;
+        }
+
+        const depositsCfg = unwrap(
+          gui.getDeposits(),
+          "Failed to get deposits",
+        );
+        if (depositsCfg.length > 0) {
+          entry.deposits = depositsCfg.map((d) => d.token);
+        }
+
+        gui.free();
+      } catch (err) {
+        console.error(
+          `[strategies] GUI introspection failed for ${params.strategy_key}/${deploymentKey}:`,
+          err instanceof Error ? err.message : String(err),
+        );
+        entry.fields = {};
+        entry._guiError = err instanceof Error ? err.message : String(err);
+      }
+
+      deployments[deploymentKey] = entry;
+    }
+
+    return toolResult({ deployments });
   } catch (e) {
     return toolError(String(e));
   }
